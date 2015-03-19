@@ -1,4 +1,6 @@
-var scene, camera, renderer, controls;
+var INPUT_DISTANCE = 400;
+
+var scene, camera, renderer, controls, hud;
 
 var cells = [];
 
@@ -23,7 +25,7 @@ function init () {
       window.innerHeight, 1, 1000 );
 
   scene.add( camera );
-  
+
   // add view controls
   controls = new THREE.DeviceOrientationControls( camera );
 
@@ -34,7 +36,7 @@ function init () {
   domElem.style.width = window.innerWidth * 0.01 + 'px';
   domElem.style.height = window.innerWidth * 0.01 + 'px';
 
-  var hud = new THREE.CSS3DObject( domElem );
+  hud = new THREE.CSS3DObject( domElem );
   hud.position.set( 0, 0, -300 );
 
   camera.add( hud );
@@ -42,18 +44,68 @@ function init () {
   // add cells
   makeCells(2);
   animate();
+  
+  // how to determine if a cell is no longer hovered over by hud?
+  // var cellElems = document.getElementsByClassName("cell");
+  //
+  // function onCellFocus(e) {
+  //   console.log("focused");
+  //   console.log(e);
+  // }
+  //
+  // function onCellFocusOut(e) {
+  //   console.log("blurry");
+  //   console.log(e);
+  // }
+  //
+  // if (cellElems.length) {
+  //   for (var i = 0; i < cellElems.length; i++) {
+  //     cellElems[i].addEventListener('focus', onCellFocus, true);
+  //     cellElems[i].addEventListener('focusOut', onCellFocusOut, true);
+  //   }
+  // }
+}
+
+function findFocusedCell () {
+  var pos = hud.elementL.getBoundingClientRect(),
+    x = pos.left,
+    y = pos.top,
+    elem = document.elementFromPoint(x, y),
+    cell;
+
+  if (elem && elem.className.indexOf("cell") >= 0) {
+    elem.focus();
+    cell = cells[elem.getAttribute("data-index")];
+    // console.log(elem);
+    cell.elementR.value = cell.elementL.value;
+  }
 }
 
 var CELL_WIDTH = 100,
   CELL_HEIGHT = 100;
 
+var planeMesh;
+
 function makeCells (numCells) {
+  var geometry = new THREE.PlaneGeometry(5, 5);
+  var material = new THREE.MeshBasicMaterial({ wireframe: true });
+
   for (var i = 0; i < numCells; i++) {
+    planeMesh = new THREE.Mesh( geometry, material );
+
+    planeMesh.position.set(
+      INPUT_DISTANCE,
+      CELL_HEIGHT / 2,
+      i * CELL_WIDTH
+    )
+    scene.add(planeMesh);
+    planeMesh.lookAt(camera.position);
+
     cells[i] = makeCell(i, CELL_WIDTH, CELL_HEIGHT);
 
     // position.set(x, y, z)
     cells[i].position.set(
-      400,
+      INPUT_DISTANCE,
       CELL_HEIGHT / 2,
       i * CELL_WIDTH
     );
@@ -62,15 +114,16 @@ function makeCells (numCells) {
 
     cells[i].lookAt(camera.position);
   }
-  cells[0].elementL.focus();
 }
+
+
 
 // change to more OO approach, cell constructor
 function makeCell (cellIndex, width, height) {
   var cell = document.createElement( 'input' );
 
   cell.className = 'cell';
-  cell.id = 'c_' + cellIndex;
+  cell.setAttribute("data-index", cellIndex);
 
   cell.style.width = width + 'px';
   cell.style.height = height + 'px';
@@ -80,6 +133,8 @@ function makeCell (cellIndex, width, height) {
 
 function animate () {
   requestAnimationFrame( animate );
+
+  findFocusedCell();
 
   controls.update();
 
