@@ -81,9 +81,6 @@ function findFocusedCell () {
   }
 }
 
-var CELL_WIDTH = 100,
-  CELL_HEIGHT = 100;
-
 function makeCells (numCells, numCols) {
   var angle = (2 * Math.PI) / numCells,
     elemWidth = 2 * INPUT_DISTANCE * Math.tan(angle / 2),
@@ -105,7 +102,8 @@ function makeCells (numCells, numCols) {
     for (var j = 0; j < numCols; j++) {
       cells[i + j] = makeCell(i, elemWidth, elemWidth);
 
-      yCoord = j * CELL_HEIGHT * 1.1;
+      // * 1.1 to remove overlap. need to find out what causes overlap
+      yCoord = j * elemWidth * 1.1;
 
       // position.set(x, y, z)
       cells[i + j].position.set(
@@ -125,7 +123,7 @@ function makeCells (numCells, numCols) {
 
     cAngle += angle;
   }
-  camera.position.y = (j / 2) * CELL_HEIGHT * 1.1
+  camera.position.y = (j / 2) * elemWidth * 1.1
 }
 
 // change to more OO approach, cell constructor
