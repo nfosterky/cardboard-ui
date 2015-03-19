@@ -42,9 +42,9 @@ function init () {
   camera.add( hud );
 
   // add cells
-  makeCells(2);
+  makeCells(24, 4);
   animate();
-  
+
   // how to determine if a cell is no longer hovered over by hud?
   // var cellElems = document.getElementsByClassName("cell");
   //
@@ -84,43 +84,53 @@ function findFocusedCell () {
 var CELL_WIDTH = 100,
   CELL_HEIGHT = 100;
 
-var planeMesh;
+function makeCells (numCells, numCols) {
+  var angle = (2 * Math.PI) / numCells,
+    elemWidth = 2 * INPUT_DISTANCE * Math.tan(angle / 2),
+    cAngle = 0;
 
-function makeCells (numCells) {
+  var pos = {
+    x: camera.position.x + INPUT_DISTANCE,
+    z: camera.position.z
+  }
+
   var geometry = new THREE.PlaneGeometry(5, 5);
+
   var material = new THREE.MeshBasicMaterial({ wireframe: true });
 
-  for (var i = 0; i < numCells; i++) {
-    planeMesh = new THREE.Mesh( geometry, material );
+  var yCoord = camera.position.z;
+  var centerPoint = new THREE.Vector3(0,0,1);
 
-    planeMesh.position.set(
-      INPUT_DISTANCE,
-      CELL_HEIGHT / 2,
-      i * CELL_WIDTH
-    )
-    scene.add(planeMesh);
-    planeMesh.lookAt(camera.position);
+  for (var i = 0; i <= numCells; i++) {
+    for (var j = 0; j < numCols; j++) {
+      cells[i + j] = makeCell(i, elemWidth, elemWidth);
 
-    cells[i] = makeCell(i, CELL_WIDTH, CELL_HEIGHT);
+      yCoord = j * CELL_HEIGHT * 1.1;
 
-    // position.set(x, y, z)
-    cells[i].position.set(
-      INPUT_DISTANCE,
-      CELL_HEIGHT / 2,
-      i * CELL_WIDTH
-    );
+      // position.set(x, y, z)
+      cells[i + j].position.set(
+        pos.x,
+        yCoord,
+        pos.z
+      );
 
-    scene.add(cells[i]);
+      scene.add(cells[i + j]);
 
-    cells[i].lookAt(camera.position);
+      centerPoint.setY(yCoord);
+
+      cells[i + j].lookAt(centerPoint);
+    }
+    pos.x = camera.position.x + (INPUT_DISTANCE * Math.cos(cAngle));
+    pos.z = camera.position.z + (INPUT_DISTANCE * Math.sin(cAngle));
+
+    cAngle += angle;
   }
+  camera.position.y = (j / 2) * CELL_HEIGHT * 1.1
 }
-
-
 
 // change to more OO approach, cell constructor
 function makeCell (cellIndex, width, height) {
-  var cell = document.createElement( 'input' );
+  var cell = document.createElement( 'textarea' );
 
   cell.className = 'cell';
   cell.setAttribute("data-index", cellIndex);
