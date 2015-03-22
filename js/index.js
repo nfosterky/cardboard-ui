@@ -1,6 +1,6 @@
 var INPUT_DISTANCE = 400;
 
-var scene, camera, renderer, controls, hud, vObj;
+var scene, camera, renderer, controls, pointer, vObj;
 
 var cells = [];
 
@@ -8,6 +8,9 @@ var move = {
   up: false,
   down: false
 };
+
+// current element under pointer
+var currentIndex = false;
 
 function init () {
   // create scene
@@ -34,57 +37,80 @@ function init () {
   // add view controls
   controls = new THREE.DeviceOrientationControls( camera );
 
-  // add hud / pointer for camera
+  // add pointer / pointer for camera
 
   var domElem = document.createElement( 'div' );
-  domElem.className = 'hud';
+  domElem.className = 'pointer';
   domElem.style.width = window.innerWidth * 0.01 + 'px';
   domElem.style.height = window.innerWidth * 0.01 + 'px';
 
-  hud = new THREE.CSS3DObject( domElem );
-  hud.position.set( 0, 0, -300 );
+  pointer = new THREE.CSS3DObject( domElem );
+  pointer.position.set( 0, 0, -300 );
 
-  camera.add( hud );
+  camera.add( pointer );
 
   // add cells
   makeCells(24, 4);
   animate();
 
-  addVideoFeed();
+  // addVideoFeed();
   initGyro();
-  // how to determine if a cell is no longer hovered over by hud?
-  // var cellElems = document.getElementsByClassName("cell");
-  //
-  // function onCellFocus(e) {
-  //   console.log("focused");
-  //   console.log(e);
-  // }
-  //
-  // function onCellFocusOut(e) {
-  //   console.log("blurry");
-  //   console.log(e);
-  // }
-  //
-  // if (cellElems.length) {
-  //   for (var i = 0; i < cellElems.length; i++) {
-  //     cellElems[i].addEventListener('focus', onCellFocus, true);
-  //     cellElems[i].addEventListener('focusOut', onCellFocusOut, true);
-  //   }
-  // }
 }
 
 function findFocusedCell () {
-  var pos = hud.elementL.getBoundingClientRect(),
-    x = pos.left,
-    y = pos.top,
-    elem = document.elementFromPoint(x, y),
-    cell;
+  var p = pointer.elementL.getBoundingClientRect(),
+    elem = document.elementFromPoint(p.left, p.top),
+    prevIndex,
+    cell, oldObj, currentObj;
 
+  // if element is cell
   if (elem && elem.className.indexOf("cell") >= 0) {
-    elem.focus();
-    cell = cells[elem.getAttribute("data-index")];
-    // console.log(elem);
-    cell.elementR.value = cell.elementL.value;
+
+    // check for last hovered cell
+    if (currentIndex) {
+      prevIndex = currentIndex;
+      oldObj = cells[ prevIndex ];
+
+    } else {
+      prevIndex = false;
+    }
+
+    currentIndex = elem.getAttribute("data-index");
+    currentObj = cells[ currentIndex ];
+
+    // if element has changed
+    if (prevIndex && prevIndex !== currentIndex) {
+
+      // remove focus from previously focused elements
+      oldObj.elementL.className =
+          oldObj.elementL.className.replace("focused", "");
+
+      oldObj.elementR.className =
+          oldObj.elementR.className.replace("focused", "");
+
+      // console.log(currentObj);
+      // add focus to new elements
+      currentObj.elementL.focus();
+      currentObj.elementL.className += " focused";
+      currentObj.elementR.className += " focused";
+    }
+
+    // sync left and right elements values
+    currentObj.elementR.value = currentObj.elementL.value;
+
+  } else {
+
+    if (currentIndex) {
+      prevIndex = currentIndex;
+      oldObj = cells[ prevIndex ];
+
+      oldObj.elementL.className =
+          oldObj.elementL.className.replace("focused", "");
+
+      oldObj.elementR.className =
+          oldObj.elementR.className.replace("focused", "");
+    }
+    currentIndex = false;
   }
 }
 
@@ -105,25 +131,30 @@ function makeCells (numCells, numCols) {
   var yCoord = camera.position.z;
   var centerPoint = new THREE.Vector3(0,0,1);
 
+  var index;
+
   for (var i = 0; i <= numCells; i++) {
+
     for (var j = 0; j < numCols; j++) {
-      cells[i + j] = makeCell(i, elemWidth, elemWidth);
+      index = j + (i * numCols);
+
+      cells[index] = makeCell(index, elemWidth, elemWidth);
 
       // * 1.1 to remove overlap. need to find out what causes overlap
       yCoord = j * elemWidth * 1.1;
 
       // position.set(x, y, z)
-      cells[i + j].position.set(
+      cells[index].position.set(
         pos.x,
         yCoord,
         pos.z
       );
 
-      scene.add(cells[i + j]);
+      scene.add(cells[index]);
 
       centerPoint.setY(yCoord);
 
-      cells[i + j].lookAt(centerPoint);
+      cells[index].lookAt(centerPoint);
     }
     pos.x = camera.position.x + (INPUT_DISTANCE * Math.cos(cAngle));
     pos.z = camera.position.z + (INPUT_DISTANCE * Math.sin(cAngle));
@@ -233,24 +264,25 @@ function animate () {
 
   renderer.render( scene, camera );
 
-  if (vObj && vObj.elementL.paused) {
-    vObj.elementL.play();
-  }
+  if (typeof vObj !== "undefined") {
+    if (vObj.elementL.paused) {
+      vObj.elementL.play();
+    }
 
-  if (vObj && vObj.elementR.paused) {
-    vObj.elementR.play();
-  }
+    if (vObj.elementR.paused) {
+      vObj.elementR.play();
+    }
 
+    if (move.up) {
+      console.log("move up");
+      camera.position.y = 3000;
+      vObj.position.y = 0;
 
-  if (move.up) {
-    console.log("move up");
-    camera.position.y = 3000;
-    vObj.position.y = 0;
-
-  } else if (move.down) {
-    console.log("move down");
-    camera.position.y = 250;
-    vObj.position.y = 1000;
+    } else if (move.down) {
+      console.log("move down");
+      camera.position.y = 250;
+      vObj.position.y = 1000;
+    }
   }
 }
 
