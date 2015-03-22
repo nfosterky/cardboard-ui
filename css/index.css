@@ -9,8 +9,12 @@ input:focus {
   background-color: rgba(255, 255, 180, 1);
 }
 
-.hud {
+.pointer {
   background: transparent;
   border: 2px solid rgba(0, 0, 0, .3);
   border-radius: 100%;
+}
+
+.focused {
+  background-color: rgb(255, 255, 215);
 }
