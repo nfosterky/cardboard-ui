@@ -79,6 +79,8 @@ function init (searchTerm) {
   animate();
 
   initGyro();
+
+  addVideoFeed();
 }
 
 function requestPage ( title ) {
@@ -333,6 +335,66 @@ function trackPageMovement () {
   }
 }
 
+function addVideoFeed () {
+  var videoSource = null
+    errBack = function(error) {
+      console.log("Video capture error: ", error);
+    };
+
+  var getUserMedia = null;
+
+  if (navigator.getUserMedia) {
+    getUserMedia = function(a, b, c) {
+      navigator.getUserMedia(a, b, c);
+    }
+
+  } else if (navigator.webkitGetUserMedia) {
+    getUserMedia = function(a, b, c) {
+      navigator.webkitGetUserMedia(a, b, c);
+    }
+  }
+
+  if (typeof MediaStreamTrack !== "undefined") {
+    MediaStreamTrack.getSources(function(sourceInfos) {
+      var sourceInfo, media;
+
+      // find last video source - might need to add check, last video might not
+      // always be what we want?
+      for (var i = 0; i < sourceInfos.length; i++) {
+        sourceInfo = sourceInfos[i];
+
+        if (sourceInfo.kind === 'video') {
+          videoSource = sourceInfo.id;
+
+        } else {
+          console.log('Some other kind of source: ', sourceInfo);
+        }
+      }
+
+      // use sourceId to select either front or back camera
+      media = { video: { optional: [{ sourceId: videoSource }] } };
+
+      getUserMedia(media, function(stream) {
+        var url = window.URL.createObjectURL(stream);
+
+        var video = document.createElement( 'video' );
+
+        vObj = new THREE.CSS3DObject( video );
+
+        vObj.elementL.src = url;
+        vObj.elementR.src = url;
+
+        vObj.position.set(0, 0, -800);
+
+        // camera.position.set(0,1000,0);
+
+        camera.add(vObj);
+
+      }, errBack);
+    });
+  }
+}
+
 function animate () {
   requestAnimationFrame( animate );
 
@@ -355,6 +417,7 @@ function animate () {
 
   trackPageMovement();
 }
+
 
 
 
