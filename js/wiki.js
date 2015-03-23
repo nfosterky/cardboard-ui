@@ -13,6 +13,9 @@ var move = {
   down: false
 };
 
+var viewportHeight = window.innerHeight;
+var viewportWidth = window.innerWidth;
+
 var elemStartHoverTime;
 var currentElem;
 
@@ -42,7 +45,7 @@ function init (searchTerm) {
 
   // add renderer
   renderer = new THREE.CSS3DStereoRenderer();
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( viewportWidth, viewportHeight );
   renderer.domElement.style.position = 'absolute';
   document.body.appendChild( renderer.domElement );
 
@@ -53,8 +56,8 @@ function init (searchTerm) {
   scene.add( light );
 
   // add camera
-  camera = new THREE.PerspectiveCamera( 40, window.innerWidth /
-      window.innerHeight, 1, 1000 );
+  camera = new THREE.PerspectiveCamera( 40, viewportWidth /
+      viewportHeight, 1, 1000 );
 
   scene.add( camera );
 
@@ -62,18 +65,18 @@ function init (searchTerm) {
   controls = new THREE.DeviceOrientationControls( camera );
 
   // add pointer / pointer for camera
+  var pointerRadius = viewportWidth * 0.01 + 'px';
 
   var domElem = document.createElement( 'div' );
   domElem.className = 'pointer';
-  domElem.style.width = window.innerWidth * 0.01 + 'px';
-  domElem.style.height = window.innerWidth * 0.01 + 'px';
+  domElem.style.width = pointerRadius;
+  domElem.style.height = pointerRadius;
 
   pointer = new THREE.CSS3DObject( domElem );
   pointer.position.set( 0, 0, POINTER_Z );
 
   camera.add( pointer );
 
-  // requestPage( "Cat" );
   requestPage( searchTerm );
 
   animate();
@@ -131,6 +134,7 @@ function makeCloseButton () {
   return button;
 }
 
+// need to rewrite to handle page removal
 function calculatePagePositions () {
   var angle = findAngle( pages.length + 1 );
   var lastAngle = angle;
@@ -202,6 +206,7 @@ function trackUIEvents () {
 
     if (new Date() - elemStartHoverTime > 500) {
       scene.remove( pages[ index ] );
+      pages.splice( index, 1 );
       // TODO: need to remove from page list as well
     }
 
@@ -384,9 +389,7 @@ function addVideoFeed () {
         vObj.elementL.src = url;
         vObj.elementR.src = url;
 
-        vObj.position.set(0, 0, -800);
-
-        // camera.position.set(0,1000,0);
+        vObj.position.set(0, 0, -600);
 
         camera.add(vObj);
 
@@ -418,8 +421,14 @@ function animate () {
   trackPageMovement();
 }
 
+window.addEventListener("keydown", function (event) {
 
-
+  // return / enter - hide keyboard
+  if (event.keyCode === 13) {
+    event.srcElement.blur();
+    document.getElementById("searchButton").click();
+  }
+}, true);
 
 // init();
 prep();
