@@ -1,7 +1,35 @@
-html, body {
+html {
+  height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
   background-color: rgb(30, 30, 60);
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#searchForm {
+  height: 50%;
+  width: 50%;
+  font-size: 2rem;
+  margin: auto;
+  color: rgb(255, 255, 255);
+  padding: 2rem;
+}
+
+#searchForm > * {
+  font-size: 2rem;
+
+          box-sizing: border-box;
+     -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+
+  margin-top: 0.5rem;
+  width: 100%;
 }
 
 input:focus {
@@ -29,4 +57,13 @@ input:focus {
 
 .page > * {
   background-color: rgba(255, 255, 255, 0.4);
+}
+
+.btnClose {
+  border: 1px solid;
+  border-width: 1px 0;
+  border-color: rgba(255, 255, 255, 0.5) rgb(0, 0, 0) rgb(0, 0, 0);
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  width: 100%;
 }
