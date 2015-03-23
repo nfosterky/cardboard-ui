@@ -1,10 +1,12 @@
 var INPUT_DISTANCE = 500;
+var POINTER_Z = -200;
 var WIKI_ROOT = "http://en.wikipedia.org/wiki/";
 
 var scene, camera, renderer, controls, pointer, vObj;
 
 var cells = [];
 var pages = [];
+var linkTitles = [];
 
 var move = {
   up: false,
@@ -24,10 +26,8 @@ function prep () {
 
   btnSearch.onclick = function () {
     if (inpSearch.value.length) {
-      init(inpSearch.value)
-      // hide ui
-
       searchForm.style.display = "none";
+      init(inpSearch.value);
 
     } else {
       alert("Please enter search term");
@@ -36,6 +36,7 @@ function prep () {
 }
 
 function init (searchTerm) {
+  var stereoView = document.getElementById("stereoView");
   // create scene
   scene = new THREE.Scene();
 
@@ -68,12 +69,12 @@ function init (searchTerm) {
   domElem.style.height = window.innerWidth * 0.01 + 'px';
 
   pointer = new THREE.CSS3DObject( domElem );
-  pointer.position.set( 0, 0, -300 );
+  pointer.position.set( 0, 0, POINTER_Z );
 
   camera.add( pointer );
 
-  requestPage( "Cat" );
-  // requestPage( searchTerm );
+  // requestPage( "Cat" );
+  requestPage( searchTerm );
 
   animate();
 
@@ -121,6 +122,8 @@ function makePage (data, textStatus, jqXHR) {
 function makeCloseButton () {
   var button = document.createElement( 'button' );
 
+  button.className = "btnClose";
+
   button.innerText = "X";
 
   return button;
@@ -156,38 +159,48 @@ function findPointerElem () {
   return elem ? elem : false;
 }
 
-var linkTitles = [];
-
 function trackUIEvents () {
-  var elem = findPointerElem();
+  var elem = findPointerElem(),
+    hoverTime,
+    index;
 
   // element changed
   if (elem !== currentElem) {
     currentElem = elem;
+
     elemStartHoverTime = new Date();
+
+    // reset pointer to original distance / size
+    pointer.position.z = POINTER_Z;
   }
 
+  hoverTime = new Date() - elemStartHoverTime
+
   // element is link
-  if (elem.nodeName === "A") {
+  if ( elem.nodeName === "A" ) {
     link_title = elem.title;
 
     // if element hovered over for half second
-    // TODO: need to provide feedback
-    if (new Date() - elemStartHoverTime > 500) {
+    if ( hoverTime > 400 ) {
 
       // if link not currently opened
       if ( linkTitles.indexOf( link_title ) < 0 ) {
         requestPage( link_title );
         linkTitles.push( link_title );
       }
+
+    // change size of pointer to reflect time hovered over element
+  } else if ( hoverTime > 75 ) {
+      pointer.position.z = POINTER_Z - hoverTime;
+      console.log(pointer.position.z);
     }
 
-  } else if (elem.nodeName === "BUTTON") {
-    var index = elem.parentElement.getAttribute("data-index");
+  } else if ( elem.nodeName === "BUTTON" ) {
+    index = elem.parentElement.getAttribute( "data-index" );
 
     if (new Date() - elemStartHoverTime > 500) {
       scene.remove( pages[ index ] );
-      // TODO: need to remove from 1000 list as well
+      // TODO: need to remove from page list as well
     }
 
   } else {
@@ -281,6 +294,45 @@ function initGyro () {
   });
 }
 
+function findElementPage (elem) {
+  var page = false,
+    parent = elem.parentElement,
+    index;
+
+  while (parent) {
+
+    if (parent.className.indexOf("page") >= 0) {
+      index = parent.getAttribute("data-index");
+      page = pages[index];
+      break;
+    }
+
+    parent = parent.parentElement;
+  }
+
+  return page;
+}
+
+function trackPageMovement () {
+  var speed = 3,
+    page;
+
+  // find page element
+  page = findElementPage( findPointerElem() );
+
+  if (page) {
+
+    // scroll down
+    if (move.up) {
+      page.position.y -= speed;
+
+    // scroll up
+    } else if (move.down) {
+      page.position.y += speed;
+    }
+  }
+}
+
 function animate () {
   requestAnimationFrame( animate );
 
@@ -290,6 +342,7 @@ function animate () {
 
   renderer.render( scene, camera );
 
+  // if video objects, make sure videos are playing
   if (typeof vObj !== "undefined") {
     if (vObj.elementL.paused) {
       vObj.elementL.play();
@@ -300,38 +353,10 @@ function animate () {
     }
   }
 
-  var speed = 3;
-  var elem;
-  var pElem,
-    page,
-    index;
-
-  elem = findPointerElem();
-  pElem = elem.parentElement;
-
-  // find page element
-  while (pElem) {
-
-    if (pElem.className.indexOf("page") >= 0) {
-      index = pElem.getAttribute("data-index");
-      page = pages[index];
-      break;
-    }
-
-    pElem = pElem.parentElement;
-  }
-
-  if (page) {
-    if (move.up) {
-      // console.log("scroll down");
-      page.position.y -= speed;
-
-    } else if (move.down) {
-      // console.log("scroll up");
-      page.position.y += speed;
-    }
-  }
-
+  trackPageMovement();
 }
 
-init();
+
+
+// init();
+prep();
