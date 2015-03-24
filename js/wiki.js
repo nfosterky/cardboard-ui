@@ -2,6 +2,7 @@ var INPUT_DISTANCE = 400;
 var POINTER_Z = -200;
 var WIKI_ROOT = "http://en.wikipedia.org/w/api.php";
 var PAGE_CLASS = "page-container";
+var PAGE_WIDTH = 320;
 
 var scene, camera, renderer, controls, pointer, vObj;
 
@@ -153,18 +154,21 @@ function makeCloseButton () {
 
 // need to rewrite to handle page removal
 function calculatePagePositions () {
-  var angle = findAngle( pages.length + 1 ),
+  var angle = findAngle( pages.length ),
+    distance = ( PAGE_WIDTH / 2 ) / ( Math.tan( angle / 2 ) ),
     pageScrollY,
     lastAngle = 0,
     pos;
 
+  console.log(distance);
+
   for (var i = 0; i < pages.length; i++) {
-    pos = findNextPagePosition(lastAngle);
+    pos = findNextPagePosition( lastAngle, distance );
     lastAngle += angle;
 
     pageScrollY = pages[i].position.y
 
-    pages[i].position.set(pos.x, pos.y, pos.z);
+    pages[i].position.set( pos.x, pos.y, pos.z );
     pages[i].lookAt( camera.position );
 
     // reset y scroll - if done before lookAt(camera.position), page will be tilted
@@ -172,12 +176,19 @@ function calculatePagePositions () {
   }
 }
 
-function findNextPagePosition (angle) {
+function findNextPagePosition (angle, distance) {
   return {
-    x: camera.position.x + (INPUT_DISTANCE * Math.cos(angle)),
+    x: camera.position.x + (distance * Math.cos(angle)),
     y: 0,
-    z: camera.position.z + (INPUT_DISTANCE * Math.sin(angle))
+    z: camera.position.z + (distance * Math.sin(angle))
   };
+}
+
+function findAngle ( numItems ) {
+  numItems = numItems > 8 ? numItems : 8;
+
+  // return (2 * Math.PI) / numItems;
+  return (2 * Math.PI) / numItems;
 }
 
 function findPointerElem () {
@@ -220,85 +231,25 @@ function trackUIEvents () {
     // change size of pointer to reflect time hovered over element
   } else if ( hoverTime > 75 ) {
       pointer.position.z = POINTER_Z - hoverTime;
-      console.log(pointer.position.z);
     }
 
   } else if ( elem.nodeName === "BUTTON" ) {
-    index = elem.parentElement.getAttribute( "data-index" );
+    var page = findElementPage(elem);
 
-    if (new Date() - elemStartHoverTime > 500) {
+    index = page.elementL.getAttribute( "data-index" );
+
+    if ( new Date() - elemStartHoverTime > 500 ) {
       scene.remove( pages[ index ] );
-      pages.splice( index, 1 );
+
       // TODO: need to remove from page list as well
+      pages.splice( index, 1 );
+      console.log( pages );
+
     }
 
   } else {
     link_title = "";
   }
-}
-
-function findFocusedCell () {
-  var p = pointer.elementL.getBoundingClientRect(),
-    elem = document.elementFromPoint(p.left, p.top),
-    prevIndex,
-    cell, oldObj, currentObj;
-
-  // console.log( elem );
-  // if element is cell
-  if (elem && elem.className.indexOf("cell") >= 0) {
-
-    // check for last hovered cell
-    if (currentIndex) {
-      prevIndex = currentIndex;
-      oldObj = cells[ prevIndex ];
-
-    } else {
-      prevIndex = false;
-    }
-
-    currentIndex = elem.getAttribute("data-index");
-    currentObj = cells[ currentIndex ];
-
-    // if element has changed
-    if (prevIndex && prevIndex !== currentIndex) {
-
-      // remove focus from previously focused elements
-      oldObj.elementL.className =
-          oldObj.elementL.className.replace("focused", "");
-
-      oldObj.elementR.className =
-          oldObj.elementR.className.replace("focused", "");
-
-      // console.log(currentObj);
-      // add focus to new elements
-      currentObj.elementL.focus();
-      currentObj.elementL.className += " focused";
-      currentObj.elementR.className += " focused";
-    }
-
-    // sync left and right elements values
-    currentObj.elementR.value = currentObj.elementL.value;
-
-  } else {
-
-    if (currentIndex) {
-      prevIndex = currentIndex;
-      oldObj = cells[ prevIndex ];
-
-      oldObj.elementL.className =
-          oldObj.elementL.className.replace("focused", "");
-
-      oldObj.elementR.className =
-          oldObj.elementR.className.replace("focused", "");
-    }
-    currentIndex = false;
-  }
-}
-
-function findAngle ( numItems ) {
-  numItems = numItems > 8 ? numItems : 8;
-
-  return (2 * Math.PI) / numItems;
 }
 
 function initGyro () {
@@ -348,8 +299,6 @@ function trackPageMovement () {
 
   // find page element
   page = findElementPage( findPointerElem() );
-
-  // console.log(page);
 
   if ( page ) {
 
