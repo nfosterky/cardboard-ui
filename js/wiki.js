@@ -1,6 +1,6 @@
-var INPUT_DISTANCE = 500;
+var INPUT_DISTANCE = 400;
 var POINTER_Z = -200;
-var WIKI_ROOT = "http://en.wikipedia.org/wiki/";
+var WIKI_ROOT = "http://en.wikipedia.org/w/api.php";
 
 var scene, camera, renderer, controls, pointer, vObj;
 
@@ -39,7 +39,6 @@ function prep () {
 }
 
 function init (searchTerm) {
-  var stereoView = document.getElementById("stereoView");
   // create scene
   scene = new THREE.Scene();
 
@@ -89,7 +88,9 @@ function init (searchTerm) {
 function requestPage ( title ) {
   $.ajax({
       type: "GET",
-      url: "http://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&section=0&page=" + title + "&callback=?",
+      url: WIKI_ROOT +
+          "?action=parse&format=json&prop=text&section=0&page=" + title +
+          "&callback=?",
       contentType: "application/json; charset=utf-8",
       async: false,
       dataType: "json",
@@ -108,9 +109,24 @@ function makePage (data, textStatus, jqXHR) {
   page.className = "page";
   page.setAttribute("data-index", pages.length);
 
-  page.appendChild(makeCloseButton());
+  // make header
+  var header = document.createElement( 'header' );
+  header.className = "page-header";
+
+  var title = document.createElement( 'span' );
+  title.innerText = "title";
+
+  header.appendChild( title );
+  header.appendChild(makeCloseButton());
+
   content.innerHTML = data.parse.text["*"];
+  content.className = "page-content";
   page.appendChild(content);
+
+  var footer = document.createElement( 'footer' );
+  footer.innerText = "footer!";
+
+  page.appendChild(footer);
 
   pageObj = new THREE.CSS3DObject( page );
 
