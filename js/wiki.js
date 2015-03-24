@@ -113,9 +113,10 @@ function makePage (data, textStatus, jqXHR) {
 
   var title = document.createElement( 'span' );
   title.innerText = "title";
+  title.className ="page-title";
 
-  header.appendChild( title );
   header.appendChild( makeCloseButton() );
+  header.appendChild( title );
 
   page.appendChild( header );
 
@@ -153,16 +154,21 @@ function makeCloseButton () {
 // need to rewrite to handle page removal
 function calculatePagePositions () {
   var angle = findAngle( pages.length + 1 ),
+    pageScrollY,
     lastAngle = 0,
     pos;
 
   for (var i = 0; i < pages.length; i++) {
     pos = findNextPagePosition(lastAngle);
-
     lastAngle += angle;
+
+    pageScrollY = pages[i].position.y
 
     pages[i].position.set(pos.x, pos.y, pos.z);
     pages[i].lookAt( camera.position );
+
+    // reset y scroll - if done before lookAt(camera.position), page will be tilted
+    pages[i].position.y = pageScrollY;
   }
 }
 
