@@ -69,5 +69,5 @@ input:focus {
   border-width: 1px 0;
   border-color: rgba(255, 255, 255, 0.5) rgb(0, 0, 0) rgb(0, 0, 0);
   font-size: 1.5rem;
-  padding: 0.5rem;
+  padding: 1rem;
 }
