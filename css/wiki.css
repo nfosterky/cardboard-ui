@@ -48,14 +48,13 @@ input:focus {
   background-color: rgb(255, 255, 215);
 }
 
-.page {
-  /* background-color: rgba(255, 255, 255, 0.4); */
+.page-container {
   border: 2px solid rgba(0, 0, 0, 0.3);
-  /* width: 320px; */
-  /* height: 480px; */
+  width: 320px;
+  height: 480px;
 }
 
-.page > * {
+.page-container > * {
   background-color: rgba(255, 255, 255, 0.4);
 }
 
