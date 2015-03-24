@@ -1,6 +1,7 @@
 var INPUT_DISTANCE = 400;
 var POINTER_Z = -200;
 var WIKI_ROOT = "http://en.wikipedia.org/w/api.php";
+var PAGE_CLASS = "page-container";
 
 var scene, camera, renderer, controls, pointer, vObj;
 
@@ -12,9 +13,6 @@ var move = {
   up: false,
   down: false
 };
-
-var viewportHeight = window.innerHeight;
-var viewportWidth = window.innerWidth;
 
 var elemStartHoverTime;
 var currentElem;
@@ -106,7 +104,7 @@ function makePage (data, textStatus, jqXHR) {
     content = document.createElement( 'div' ),
     pageObj, pagePos;
 
-  page.className = "page";
+  page.className = PAGE_CLASS;
   page.setAttribute("data-index", pages.length);
 
   // make header
@@ -117,7 +115,9 @@ function makePage (data, textStatus, jqXHR) {
   title.innerText = "title";
 
   header.appendChild( title );
-  header.appendChild(makeCloseButton());
+  header.appendChild( makeCloseButton() );
+
+  page.appendChild( header );
 
   content.innerHTML = data.parse.text["*"];
   content.className = "page-content";
@@ -152,9 +152,9 @@ function makeCloseButton () {
 
 // need to rewrite to handle page removal
 function calculatePagePositions () {
-  var angle = findAngle( pages.length + 1 );
-  var lastAngle = angle;
-  var pos;
+  var angle = findAngle( pages.length + 1 ),
+    lastAngle = 0,
+    pos;
 
   for (var i = 0; i < pages.length; i++) {
     pos = findNextPagePosition(lastAngle);
@@ -317,16 +317,16 @@ function initGyro () {
   });
 }
 
-function findElementPage (elem) {
+function findElementPage ( elem ) {
   var page = false,
     parent = elem.parentElement,
     index;
 
-  while (parent) {
+  while ( parent ) {
 
-    if (parent.className.indexOf("page") >= 0) {
-      index = parent.getAttribute("data-index");
-      page = pages[index];
+    if ( parent.className.indexOf( PAGE_CLASS ) >= 0 ) {
+      index = parent.getAttribute( "data-index" );
+      page = pages[ index ];
       break;
     }
 
@@ -343,14 +343,16 @@ function trackPageMovement () {
   // find page element
   page = findElementPage( findPointerElem() );
 
-  if (page) {
+  // console.log(page);
+
+  if ( page ) {
 
     // scroll down
-    if (move.up) {
+    if ( move.up ) {
       page.position.y -= speed;
 
     // scroll up
-    } else if (move.down) {
+    } else if ( move.down ) {
       page.position.y += speed;
     }
   }
@@ -405,7 +407,10 @@ function addVideoFeed () {
         vObj.elementL.src = url;
         vObj.elementR.src = url;
 
-        vObj.position.set(0, 0, -600);
+        // double size of video so it can be farther away
+        vObj.scale.set(2,2,2);
+
+        vObj.position.set(0, 0, -3 * INPUT_DISTANCE);
 
         camera.add(vObj);
 
