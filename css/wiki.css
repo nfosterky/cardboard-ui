@@ -72,3 +72,7 @@ input:focus {
   font-size: 1.5rem;
   padding: 1rem;
 }
+
+.active-green {
+  border-color: rgb(100, 255, 100);
+}

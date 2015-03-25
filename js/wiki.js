@@ -4,6 +4,8 @@ var WIKI_ROOT = "http://en.wikipedia.org/w/api.php";
 var PAGE_CLASS = "page-container";
 var PAGE_WIDTH = 320;
 
+var HOVER_CLICK_SPEED = 400;
+
 var scene, camera, renderer, controls, pointer, vObj;
 
 var cells = [];
@@ -211,6 +213,10 @@ function trackUIEvents () {
 
     // reset pointer to original distance / size
     pointer.position.z = POINTER_Z;
+
+    // make sure pointer not active
+    pointer.elementL.className.replace("active-green", "");
+    pointer.elementR.className.replace("active-green", "");
   }
 
   hoverTime = new Date() - elemStartHoverTime
@@ -220,7 +226,13 @@ function trackUIEvents () {
     link_title = elem.title;
 
     // if element hovered over for half second
-    if ( hoverTime > 400 ) {
+    if ( hoverTime > HOVER_CLICK_SPEED ) {
+
+      // turn pointer green
+      if (pointer.elementL.className.indexOf("active-green") === -1) {
+        pointer.elementL.className += " active-green";
+        pointer.elementR.className += " active-green";
+      }
 
       // if link not currently opened
       if ( linkTitles.indexOf( link_title ) < 0 ) {
@@ -229,7 +241,7 @@ function trackUIEvents () {
       }
 
     // change size of pointer to reflect time hovered over element
-  } else if ( hoverTime > 75 ) {
+    } else if ( hoverTime > 75 ) {
       pointer.position.z = POINTER_Z - hoverTime / 2;
     }
 
@@ -241,10 +253,8 @@ function trackUIEvents () {
     if ( new Date() - elemStartHoverTime > 500 ) {
       scene.remove( pages[ index ] );
 
-      // TODO: need to remove from page list as well
+      // remove from page list
       pages.splice( index, 1 );
-      console.log( pages );
-
     }
 
   } else {
