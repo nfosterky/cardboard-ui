@@ -1,4 +1,4 @@
-var INPUT_DISTANCE = 400;
+var INPUT_DISTANCE = 500;
 var POINTER_Z = -200;
 var WIKI_ROOT = "http://en.wikipedia.org/w/api.php";
 var PAGE_CLASS = "page-container";
@@ -230,7 +230,7 @@ function trackUIEvents () {
 
     // change size of pointer to reflect time hovered over element
   } else if ( hoverTime > 75 ) {
-      pointer.position.z = POINTER_Z - hoverTime;
+      pointer.position.z = POINTER_Z - hoverTime / 2;
     }
 
   } else if ( elem.nodeName === "BUTTON" ) {
