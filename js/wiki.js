@@ -162,9 +162,9 @@ function calculatePagePositions () {
 
   console.log(distance);
 
-  for (var i = 0; i < pages.length; i++) {
+  for (var i = pages.length - 1; i >= 0 ; i--) {
     pos = findNextPagePosition( lastAngle, distance );
-    lastAngle += angle;
+    lastAngle -= angle;
 
     pageScrollY = pages[i].position.y
 
