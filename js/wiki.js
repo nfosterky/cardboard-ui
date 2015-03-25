@@ -202,6 +202,7 @@ function findPointerElem () {
 
 function trackUIEvents () {
   var elem = findPointerElem(),
+    page,
     hoverTime,
     index;
 
@@ -246,16 +247,32 @@ function trackUIEvents () {
     }
 
   } else if ( elem.nodeName === "BUTTON" ) {
-    var page = findElementPage(elem);
+    page = findElementPage( elem );
 
-    index = page.elementL.getAttribute( "data-index" );
+    if ( page ) {
 
-    if ( new Date() - elemStartHoverTime > 500 ) {
-      scene.remove( pages[ index ] );
+      if ( new Date() - elemStartHoverTime > 500 ) {
 
-      // remove from page list
-      pages.splice( index, 1 );
+        index = page.elementL.getAttribute( "data-index" );
+
+        // remove from scene
+        scene.remove( pages[ index ] );
+
+        // remove from page list
+        pages.splice( index, 1 );
+
+        // recalculate page index
+        for ( var i = 0; i < pages.length; i++ ) {
+          pages[i].elementL.setAttribute( "data-index", i );
+          pages[i].elementR.setAttribute( "data-index", i );
+        }
+      }
+
+    } else {
+      console.log( elem );
     }
+
+
 
   } else {
     link_title = "";
