@@ -1,4 +1,4 @@
-var INPUT_DISTANCE = 500;
+var INPUT_DISTANCE = 600;
 var POINTER_Z = -200;
 var WIKI_ROOT = "http://en.wikipedia.org/w/api.php";
 var PAGE_CLASS = "page-container";
@@ -159,7 +159,7 @@ function calculatePagePositions () {
   var angle = findAngle( pages.length ),
     distance = ( PAGE_WIDTH / 2 ) / ( Math.tan( angle / 2 ) ),
     pageScrollY,
-    lastAngle = 0,
+    lastAngle = 90,
     pos;
 
   console.log(distance);
@@ -271,8 +271,6 @@ function trackUIEvents () {
     } else {
       console.log( elem );
     }
-
-
 
   } else {
     link_title = "";
@@ -392,7 +390,7 @@ function addVideoFeed () {
         // double size of video so it can be farther away
         vObj.scale.set(2,2,2);
 
-        vObj.position.set(0, 0, -3 * INPUT_DISTANCE);
+        vObj.position.set(0, 0, -2 * INPUT_DISTANCE);
 
         camera.add(vObj);
 
@@ -433,5 +431,4 @@ window.addEventListener("keydown", function (event) {
   }
 }, true);
 
-// init();
 prep();
