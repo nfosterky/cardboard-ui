@@ -157,7 +157,7 @@ function makeCloseButton () {
 // need to rewrite to handle page removal
 function calculatePagePositions () {
   var angle = findAngle( pages.length ),
-    distance = ( PAGE_WIDTH / 2 ) / ( Math.tan( angle / 2 ) ),
+    distance = ( PAGE_WIDTH / 2 ) / Math.tan( angle / 2 ),
     pageScrollY,
     lastAngle = 90,
     pos;
