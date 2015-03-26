@@ -1,4 +1,4 @@
-var INPUT_DISTANCE = 600;
+var INPUT_DISTANCE = 400;
 var POINTER_Z = -200;
 var WIKI_ROOT = "http://en.wikipedia.org/w/api.php";
 var PAGE_CLASS = "page-container";
@@ -39,7 +39,7 @@ function prep () {
   }
 }
 
-function init (searchTerm) {
+function init ( searchTerm ) {
   // create scene
   scene = new THREE.Scene();
 
@@ -102,7 +102,7 @@ function requestPage ( title ) {
   });
 }
 
-function makePage (data, textStatus, jqXHR) {
+function makePage ( data, textStatus, jqXHR ) {
   var page = document.createElement( 'div' ),
     content = document.createElement( 'div' ),
     pageObj, pagePos;
@@ -115,7 +115,7 @@ function makePage (data, textStatus, jqXHR) {
   header.className = "page-header";
 
   var title = document.createElement( 'span' );
-  title.innerText = "title";
+  title.innerText = data.parse.title;
   title.className ="page-title";
 
   header.appendChild( makeCloseButton() );
@@ -162,7 +162,9 @@ function calculatePagePositions () {
     lastAngle = 90,
     pos;
 
-  console.log(distance);
+  if (distance < INPUT_DISTANCE) {
+    distance = INPUT_DISTANCE;
+  }
 
   for (var i = pages.length - 1; i >= 0 ; i--) {
     pos = findNextPagePosition( lastAngle, distance );
@@ -215,9 +217,17 @@ function trackUIEvents () {
     // reset pointer to original distance / size
     pointer.position.z = POINTER_Z;
 
+    console.log("class: ", pointer.elementL.className);
+
     // make sure pointer not active
-    pointer.elementL.className.replace("active-green", "");
-    pointer.elementR.className.replace("active-green", "");
+
+    // pointer.elementL.className.replace("active-green", "");
+    // pointer.elementR.className.replace("active-green", "");
+    pointer.elementL.className = "pointer";
+    pointer.elementR.className = "pointer";
+
+
+    console.log("class: ", pointer.elementL.className);
   }
 
   hoverTime = new Date() - elemStartHoverTime
@@ -390,7 +400,7 @@ function addVideoFeed () {
         // double size of video so it can be farther away
         vObj.scale.set(2,2,2);
 
-        vObj.position.set(0, 0, -2 * INPUT_DISTANCE);
+        vObj.position.set(0, 0, -3 * INPUT_DISTANCE);
 
         camera.add(vObj);
 
