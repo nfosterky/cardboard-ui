@@ -1,12 +1,12 @@
 var HOVER_CLICK_SPEED = 400,
   INPUT_DISTANCE = 500,
   POINTER_Z = -200,
+  PAGE_WIDTH = 320,
   WIKI_ROOT = "http://en.wikipedia.org/w/api.php",
-  PAGE_CLASS = "page-container",
-  PAGE_WIDTH = 320;
+  PAGE_CLASS = "page-container";
 
-var scene, camera, renderer, controls, pointer, vObj;
-var elemStartHoverTime, currentElem;
+var scene, camera, renderer, controls, pointer, vObj, elemStartHoverTime,
+  currentElem;
 
 var move = {
   up: false,
@@ -34,6 +34,8 @@ function prep () {
 }
 
 function init ( searchTerm ) {
+  var pointerRadius, pointerElem;
+
   // create scene
   scene = new THREE.Scene();
 
@@ -58,15 +60,15 @@ function init ( searchTerm ) {
   // add view controls
   controls = new THREE.DeviceOrientationControls( camera );
 
-  // add pointer / pointer for camera
-  var pointerRadius = viewportWidth * 0.01 + 'px';
+  // calculate pointer size
+  pointerRadius = viewportWidth * 0.01 + 'px';
 
-  var domElem = document.createElement( 'div' );
-  domElem.className = 'pointer';
-  domElem.style.width = pointerRadius;
-  domElem.style.height = pointerRadius;
+  pointerElem = document.createElement( 'div' );
+  pointerElem.className = 'pointer';
+  pointerElem.style.width = pointerRadius;
+  pointerElem.style.height = pointerRadius;
 
-  pointer = new THREE.CSS3DObject( domElem );
+  pointer = new THREE.CSS3DObject( pointerElem );
   pointer.position.set( 0, 0, POINTER_Z );
 
   camera.add( pointer );
@@ -96,37 +98,39 @@ function requestPage ( title ) {
   });
 }
 
+// TODO: start using template
 function makePage ( data, textStatus, jqXHR ) {
-  var page = document.createElement( 'div' ),
-    content = document.createElement( 'div' ),
-    pageObj, pagePos;
+  var pageElem, headerElem, titleElem, closeElem, contentElem, pageObj, pagePos;
 
-  page.className = PAGE_CLASS;
-  page.setAttribute( "data-index", pages.length );
+  pageElem = document.createElement( 'div' );
+  pageElem.className = PAGE_CLASS;
+  pageElem.setAttribute( "data-index", pages.length );
 
   // make header
-  var header = document.createElement( 'header' );
-  header.className = "page-header";
+  headerElem = document.createElement( 'header' );
+  headerElem.className = "page-header";
 
-  var title = document.createElement( 'span' );
-  title.innerText = data.parse.title;
-  title.className = "page-title";
+  // make title
+  titleElem = document.createElement( 'span' );
+  titleElem.innerText = data.parse.title;
+  titleElem.className = "page-title";
+  headerElem.appendChild( titleElem );
 
-  header.appendChild( makeCloseButton() );
-  header.appendChild( title );
+  // make close button
+  closeElem = document.createElement( 'button' );
+  closeElem.className = "btnClose";
+  closeElem.innerText = "X";
+  headerElem.appendChild( closeElem );
 
-  page.appendChild( header );
+  pageElem.appendChild( headerElem );
 
-  content.innerHTML = data.parse.text["*"];
-  content.className = "page-content";
-  page.appendChild( content );
+  contentElem = document.createElement( 'div' );
+  contentElem.innerHTML = data.parse.text["*"];
+  contentElem.className = "page-content";
 
-  var footer = document.createElement( 'footer' );
-  footer.innerText = "footer!";
+  pageElem.appendChild( contentElem );
 
-  page.appendChild( footer );
-
-  pageObj = new THREE.CSS3DObject( page );
+  pageObj = new THREE.CSS3DObject( pageElem );
 
   pages.push( pageObj );
 
@@ -136,16 +140,6 @@ function makePage ( data, textStatus, jqXHR ) {
   scene.add( pageObj );
 
   pageObj.lookAt( camera.position );
-}
-
-function makeCloseButton () {
-  var button = document.createElement( 'button' );
-
-  button.className = "btnClose";
-
-  button.innerText = "X";
-
-  return button;
 }
 
 // need to rewrite to handle page removal
