@@ -1,27 +1,21 @@
-var INPUT_DISTANCE = 400;
-var POINTER_Z = -200;
-var WIKI_ROOT = "http://en.wikipedia.org/w/api.php";
-var PAGE_CLASS = "page-container";
-var PAGE_WIDTH = 320;
-
-var HOVER_CLICK_SPEED = 400;
+var HOVER_CLICK_SPEED = 400,
+  INPUT_DISTANCE = 500,
+  POINTER_Z = -200,
+  WIKI_ROOT = "http://en.wikipedia.org/w/api.php",
+  PAGE_CLASS = "page-container",
+  PAGE_WIDTH = 320;
 
 var scene, camera, renderer, controls, pointer, vObj;
-
-var cells = [];
-var pages = [];
-var linkTitles = [];
+var elemStartHoverTime, currentElem;
 
 var move = {
   up: false,
   down: false
 };
 
-var elemStartHoverTime;
-var currentElem;
-
-// current element under pointer
-var currentIndex = false;
+var linkTitles = [],
+  cells = [],
+  pages = [];
 
 function prep () {
   var searchForm = document.getElementById("searchForm"),
@@ -29,12 +23,12 @@ function prep () {
     btnSearch = document.getElementById("searchButton");
 
   btnSearch.onclick = function () {
-    if (inpSearch.value.length) {
+    if ( inpSearch.value.length ) {
       searchForm.style.display = "none";
-      init(inpSearch.value);
+      init( inpSearch.value );
 
     } else {
-      alert("Please enter search term");
+      alert( "Please enter search term" );
     }
   }
 }
@@ -108,7 +102,7 @@ function makePage ( data, textStatus, jqXHR ) {
     pageObj, pagePos;
 
   page.className = PAGE_CLASS;
-  page.setAttribute("data-index", pages.length);
+  page.setAttribute( "data-index", pages.length );
 
   // make header
   var header = document.createElement( 'header' );
@@ -116,7 +110,7 @@ function makePage ( data, textStatus, jqXHR ) {
 
   var title = document.createElement( 'span' );
   title.innerText = data.parse.title;
-  title.className ="page-title";
+  title.className = "page-title";
 
   header.appendChild( makeCloseButton() );
   header.appendChild( title );
@@ -125,12 +119,12 @@ function makePage ( data, textStatus, jqXHR ) {
 
   content.innerHTML = data.parse.text["*"];
   content.className = "page-content";
-  page.appendChild(content);
+  page.appendChild( content );
 
   var footer = document.createElement( 'footer' );
   footer.innerText = "footer!";
 
-  page.appendChild(footer);
+  page.appendChild( footer );
 
   pageObj = new THREE.CSS3DObject( page );
 
@@ -180,24 +174,23 @@ function calculatePagePositions () {
   }
 }
 
-function findNextPagePosition (angle, distance) {
+function findNextPagePosition ( angle, distance ) {
   return {
-    x: camera.position.x + (distance * Math.cos(angle)),
+    x: camera.position.x + ( distance * Math.cos( angle ) ),
     y: 0,
-    z: camera.position.z + (distance * Math.sin(angle))
+    z: camera.position.z + ( distance * Math.sin( angle ) )
   };
 }
 
 function findAngle ( numItems ) {
   numItems = numItems > 8 ? numItems : 8;
 
-  // return (2 * Math.PI) / numItems;
-  return (2 * Math.PI) / numItems;
+  return ( 2 * Math.PI ) / numItems;
 }
 
 function findPointerElem () {
   var p = pointer.elementL.getBoundingClientRect(),
-    elem = document.elementFromPoint(p.left, p.top);
+    elem = document.elementFromPoint( p.left, p.top );
 
   return elem ? elem : false;
 }
@@ -217,17 +210,8 @@ function trackUIEvents () {
     // reset pointer to original distance / size
     pointer.position.z = POINTER_Z;
 
-    console.log("class: ", pointer.elementL.className);
-
-    // make sure pointer not active
-
-    // pointer.elementL.className.replace("active-green", "");
-    // pointer.elementR.className.replace("active-green", "");
     pointer.elementL.className = "pointer";
     pointer.elementR.className = "pointer";
-
-
-    console.log("class: ", pointer.elementL.className);
   }
 
   hoverTime = new Date() - elemStartHoverTime
@@ -240,7 +224,7 @@ function trackUIEvents () {
     if ( hoverTime > HOVER_CLICK_SPEED ) {
 
       // turn pointer green
-      if (pointer.elementL.className.indexOf("active-green") === -1) {
+      if ( pointer.elementL.className.indexOf( "active-green" ) === -1 ) {
         pointer.elementL.className += " active-green";
         pointer.elementR.className += " active-green";
       }
@@ -291,13 +275,13 @@ function initGyro () {
   gyro.frequency = 100;
 
   gyro.startTracking(function(o) {
-    if (o.gamma) {
+    if ( o.gamma ) {
 
-      if (o.gamma > 0 && o.gamma < 60) {
+      if ( o.gamma > 0 && o.gamma < 60 ) {
         move.up = true;
         move.down = false;
 
-      } else if (o.gamma < 0 && o.gamma > -60) {
+      } else if ( o.gamma < 0 && o.gamma > -60 ) {
         move.up = false;
         move.down = true;
 
@@ -350,47 +334,46 @@ function trackPageMovement () {
 
 function addVideoFeed () {
   var videoSource = null
-    errBack = function(error) {
-      console.log("Video capture error: ", error);
+    errBack = function( error ) {
+      console.log( "Video capture error: ", error );
     };
 
   var getUserMedia = null;
 
-  if (navigator.getUserMedia) {
-    getUserMedia = function(a, b, c) {
-      navigator.getUserMedia(a, b, c);
+  if ( navigator.getUserMedia ) {
+    getUserMedia = function( a, b, c ) {
+      navigator.getUserMedia( a, b, c );
     }
 
-  } else if (navigator.webkitGetUserMedia) {
-    getUserMedia = function(a, b, c) {
-      navigator.webkitGetUserMedia(a, b, c);
+  } else if ( navigator.webkitGetUserMedia ) {
+    getUserMedia = function( a, b, c ) {
+      navigator.webkitGetUserMedia( a, b, c );
     }
   }
 
-  if (typeof MediaStreamTrack !== "undefined") {
-    MediaStreamTrack.getSources(function(sourceInfos) {
+  if ( typeof MediaStreamTrack !== "undefined" ) {
+    MediaStreamTrack.getSources( function( sourceInfos ) {
       var sourceInfo, media;
 
       // find last video source - might need to add check, last video might not
       // always be what we want?
-      for (var i = 0; i < sourceInfos.length; i++) {
+      for ( var i = 0; i < sourceInfos.length; i++ ) {
         sourceInfo = sourceInfos[i];
 
-        if (sourceInfo.kind === 'video') {
+        if ( sourceInfo.kind === 'video' ) {
           videoSource = sourceInfo.id;
 
         } else {
-          console.log('Some other kind of source: ', sourceInfo);
+          console.log( 'Some other kind of source: ', sourceInfo );
         }
       }
 
       // use sourceId to select either front or back camera
-      media = { video: { optional: [{ sourceId: videoSource }] } };
+      media = { video: { optional: [ { sourceId: videoSource } ] } };
 
-      getUserMedia(media, function(stream) {
-        var url = window.URL.createObjectURL(stream);
-
-        var video = document.createElement( 'video' );
+      getUserMedia( media, function( stream ) {
+        var url = window.URL.createObjectURL( stream ),
+          video = document.createElement( 'video' );
 
         vObj = new THREE.CSS3DObject( video );
 
@@ -398,13 +381,13 @@ function addVideoFeed () {
         vObj.elementR.src = url;
 
         // double size of video so it can be farther away
-        vObj.scale.set(2,2,2);
+        vObj.scale.set( 2, 2, 2 );
 
-        vObj.position.set(0, 0, -3 * INPUT_DISTANCE);
+        vObj.position.set( 0, 0, -1200 );
 
-        camera.add(vObj);
+        camera.add( vObj );
 
-      }, errBack);
+      }, errBack );
     });
   }
 }
@@ -419,12 +402,13 @@ function animate () {
   renderer.render( scene, camera );
 
   // if video objects, make sure videos are playing
-  if (typeof vObj !== "undefined") {
-    if (vObj.elementL.paused) {
+  if ( typeof vObj !== "undefined" ) {
+
+    if ( vObj.elementL.paused ) {
       vObj.elementL.play();
     }
 
-    if (vObj.elementR.paused) {
+    if ( vObj.elementR.paused ) {
       vObj.elementR.play();
     }
   }
@@ -432,13 +416,13 @@ function animate () {
   trackPageMovement();
 }
 
-window.addEventListener("keydown", function (event) {
+window.addEventListener( "keydown", function ( event ) {
 
   // return / enter - hide keyboard
-  if (event.keyCode === 13) {
+  if ( event.keyCode === 13 ) {
     event.srcElement.blur();
-    document.getElementById("searchButton").click();
+    document.getElementById( "searchButton" ).click();
   }
-}, true);
+}, true );
 
 prep();
