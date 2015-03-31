@@ -13,6 +13,7 @@ body {
 }
 
 #searchForm {
+  display: none;
   height: 50%;
   width: 50%;
   font-size: 2rem;

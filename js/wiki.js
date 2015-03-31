@@ -22,6 +22,9 @@ function prep () {
     inpSearch = document.getElementById("searchInput"),
     btnSearch = document.getElementById("searchButton");
 
+  // show form
+  searchForm.style.display = "block";
+
   btnSearch.onclick = function () {
 
     // make sure search term entered
