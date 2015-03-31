@@ -23,8 +23,14 @@ function prep () {
     btnSearch = document.getElementById("searchButton");
 
   btnSearch.onclick = function () {
+
+    // make sure search term entered
     if ( inpSearch.value.length ) {
+
+      // hide form
       searchForm.style.display = "none";
+
+      // initialize VR
       init( inpSearch.value );
 
     } else {
