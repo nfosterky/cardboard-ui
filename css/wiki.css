@@ -50,19 +50,21 @@ input:focus {
 }
 
 .page-container {
-  border: 2px solid rgba(0, 0, 0, 0.3);
+  border: 0.25rem solid rgba(0, 0, 0, 0.5);
   width: 480px;
-  height: 480px;
   opacity: 0.8;
   /* overflow-y: scroll; */
+  box-sizing: border-box;
 }
 
-#flatPage > div > * {
+/* .page-content > div > * {
+  padding: 1rem;
   margin: auto;
-}
+} */
 
 .page-container > * {
   background-color: rgba(255, 255, 255, 0.8);
+  padding: 1rem;
 }
 
 .page-title {
