@@ -1,7 +1,7 @@
 var HOVER_CLICK_SPEED = 400,
   INPUT_DISTANCE = 500,
   POINTER_Z = -200,
-  PAGE_WIDTH = 320,
+  PAGE_WIDTH = 480,
   WIKI_ROOT = "http://en.wikipedia.org/w/api.php",
   PAGE_CLASS = "page-container";
 

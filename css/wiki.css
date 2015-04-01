@@ -54,10 +54,10 @@ input:focus {
   width: 480px;
   height: 480px;
   opacity: 0.8;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
 }
 
-#flatPage > div > *{
+#flatPage > div > * {
   margin: auto;
 }
 
