@@ -51,9 +51,14 @@ input:focus {
 
 .page-container {
   border: 2px solid rgba(0, 0, 0, 0.3);
-  width: 320px;
+  width: 480px;
   height: 480px;
   opacity: 0.8;
+  overflow-y: scroll;
+}
+
+#flatPage > div > *{
+  margin: auto;
 }
 
 .page-container > * {
