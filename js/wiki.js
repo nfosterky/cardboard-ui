@@ -431,4 +431,6 @@ window.addEventListener( "keydown", function ( event ) {
   }
 }, true );
 
-prep();
+window.onload = function () {
+  prep();
+}
