@@ -6,7 +6,7 @@ var HOVER_CLICK_SPEED = 400,
   PAGE_CLASS = "page-container";
 
 var scene, camera, renderer, controls, pointer, vObj, elemStartHoverTime,
-  currentElem;
+  currentElem, viewportWidth, viewportHeight;
 
 var move = {
   up: false,
@@ -24,6 +24,9 @@ function prep () {
 
   // show form
   searchForm.style.display = "block";
+
+  viewportHeight = window.innerHeight;
+  viewportWidth = window.innerWidth;
 
   btnSearch.onclick = function () {
 
