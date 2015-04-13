@@ -13,13 +13,14 @@ body {
 }
 
 #searchForm {
+  color: rgb(255, 255, 255);
   display: none;
+  font-size: 2rem;
   height: 50%;
   width: 50%;
-  font-size: 2rem;
   margin: auto;
-  color: rgb(255, 255, 255);
   padding: 2rem;
+  text-align: center;
 }
 
 #searchForm > * {
@@ -83,4 +84,8 @@ input:focus {
 
 .active-green {
   border-color: rgb(100, 255, 100);
+}
+
+.credits {
+  padding-top: 1rem;
 }
